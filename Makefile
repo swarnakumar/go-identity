@@ -23,3 +23,12 @@ setup-test-db:
 
 test: setup-test-db
 	go test ./... -v
+
+build-css:
+	cd web && npx tailwindcss -i ./input.css -o ./static/main.css --minify
+
+build: sync-db build-css
+	go build -o build/identity
+
+create-user: build
+	cd build && ./identity create-user

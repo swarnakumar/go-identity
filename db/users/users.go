@@ -30,6 +30,16 @@ func (users Users) Listing(ctx context.Context, offset, limit int32) ([]*sqlc.Li
 	return q.ListUsers(ctx, params)
 }
 
+func (users Users) CheckEmailExists(ctx context.Context, email string) bool {
+	q := sqlc.New(users.db)
+	c, err := q.CheckUserExists(ctx, email)
+	if err == nil {
+		return c == 1
+	} else {
+		return false
+	}
+}
+
 func (users Users) Count(ctx context.Context) int64 {
 	q := sqlc.New(users.db)
 	count, err := q.GetUserCount(ctx)
