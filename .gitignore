@@ -1,0 +1,11 @@
+.env.*
+build/
+env/
+dist/
+
+node_modules/
+web/static/
+
+.idea/
+
+*.pem
