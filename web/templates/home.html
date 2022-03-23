@@ -1,0 +1,40 @@
+{{define "title"}}
+Home
+{{end}}
+
+{{define "content"}}
+<div>
+    <h1>Home</h1>
+    {{if .UserDetails}}
+    <div class="mt-4 pt-4">
+        <p>Created By: {{.UserDetails.CreatedBy.String}}</p>
+        <p>User Since: {{.UserDetails.CreatedAt.Format "Jan 02, 2006"}}.</p>
+        {{if .UserDetails.LastLogin.Valid}}
+            <p>Last Login: {{.UserDetails.LastLogin.Time.Format "Jan 02, 2006, 3:04pm"}}.</p>
+        {{end}}
+        <p>Account is Active: {{.UserDetails.IsActive}}.</p>
+    </div>
+
+    <div class="flex items-center my-6">
+        <div class="border-t border-gray-300 flex-grow mr-3" aria-hidden="true"
+        ></div>
+        <div class="text-gray-600 italic">Links</div>
+        <div class="border-t border-gray-300 flex-grow ml-3" aria-hidden="true"
+        ></div>
+    </div>
+
+    {{if .UserDetails.IsAdmin}}
+    <div class="grid grid-cols-3 gap-6">
+        <p class="m-2"><a href="/admin"><button role="button" class="p-2 w-full text-center bg-blue-700 text-white">Go to Admin</button></a></p>
+        <p class="m-2"><a href="/change-password"><button role="button" class="p-2 w-full text-center bg-blue-700 text-white">Change Password</button></a></p>
+        <p class="m-2"><a href="/delete-account"><button role="button" class="p-2 w-full text-center bg-red-700 text-white">Delete Account</button></a></p>
+    </div>
+    {{else}}
+    <div class="grid grid-cols-2 gap-6">
+        <p class="m-2"><a href="/change-password"><button role="button" class="p-2 w-full text-center bg-blue-700 text-white">Change Password</button></a></p>
+        <p class="m-2"><a href="/delete-account"><button role="button" class="p-2 w-full text-center bg-red-700 text-white">Delete Account</button></a></p>
+    </div>
+    {{end}}
+    {{end}}
+</div>
+{{end}}

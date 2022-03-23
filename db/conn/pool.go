@@ -37,7 +37,8 @@ func NewPool(ctx context.Context) *pgxpool.Pool {
 		// set the setting to be empty before this connection is released to pool
 		_, err := conn.Exec(context.Background(), "select set_request_user($1)", "")
 		if err != nil {
-			panic(err) // or better to log the error, and then`return false` to destroy this connection instead of leaving it open.
+			log.Printf(err.Error())
+			return false
 		}
 		return true
 	}

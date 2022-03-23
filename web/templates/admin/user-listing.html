@@ -1,0 +1,52 @@
+{{define "title"}}Users{{end}}
+
+{{define "content"}}
+    <h1 class="h1 text-2xl font-bold">Users</h1>
+    {{if not .Users}}
+        <div class="m-4 p-4">
+            <p class="text-center">No Users!!!</p>
+        </div>
+    {{else}}
+        <div class="p-2 m-2">
+            <table class="w-full table table-auto">
+                <thead>
+                <tr>
+                    <th class="text-left"><p class="p-1">Email</p></th>
+                    <th class="text-center border-l"><p class="p-1">Created On</p></th>
+                    <th class="text-center border-l"><p class="p-1">Admin</p></th>
+                    <th class="text-center border-l"><p class="p-1">Active</p></th>
+                    <th class="text-center border-l"><p class="p-1">Last Login</p></th>
+                    <th class="text-center border-l"><p class="p-1">Last Updated</p></th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range .Users}}
+                <tr class="border-t">
+                    <td class="table-cell">
+                        <p class="p-1">
+                            <a href="/admin/users/{{urlEncode .Email}}" class="text-blue-500 cursor-pointer">{{.Email}}</a>
+                        </p>
+                    </td>
+                    <td class="table-cell text-center border-l"><p class="p-1">{{ .CreatedAt.Format "Jan 02, 2006"}}</p></td>
+                    <td class="table-cell text-center border-l"><p class="p-1">{{if .IsAdmin}}Yes{{else}}No{{end}}</p></td>
+                    <td class="table-cell text-center border-l"><p class="p-1">{{if .IsActive}}Yes{{else}}No{{end}}</p></td>
+                    <td class="table-cell text-center border-l">
+                        <p class="p-1">
+                            {{if .LastLogin.Valid}}
+                                {{ .LastLogin.Time.Format "Jan 02, 2006"}}
+                            {{else}}
+                                -
+                            {{end}}
+                        </p>
+                    </td>
+                    <td class="table-cell text-center border-l"><p class="p-1">{{ .UpdatedAt.Format "Jan 02, 2006"}}</p></td>
+                </tr>
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+
+        <!--Paginator-->
+        {{template "pagination" .}}
+    {{end}}
+{{end}}

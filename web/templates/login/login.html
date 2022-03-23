@@ -1,0 +1,60 @@
+{{define "title"}}Login{{end}} {{define "content"}}
+
+<h1 class="h1">Login</h1>
+
+<div class="m-2 p-2">
+  <form hx-post="/login"
+        hx-target="#login-error"
+        hx-swap="innerHTML">
+    {{.csrfField}}
+    <div class="container">
+      <div>
+        <label for="email"><b>Username</b></label>
+        <input
+                id="email"
+                type="text"
+                placeholder="Email"
+                name="email"
+                required
+                class="w-full"
+                onchange="onLoginFormChange()"
+        />
+      </div>
+
+      <div class="mt-2 pt-2">
+        <label for="password"><b>Password</b></label>
+        <input
+                id="password"
+                type="password"
+                placeholder="Enter Password"
+                name="password"
+                required
+                autocomplete="off"
+                class="w-full"
+                oninput="onLoginFormChange()"
+        />
+      </div>
+      <div id="login-error"></div>
+      <div class="mt-2 pt-2">
+        <button type="submit" class="button primary w-full">
+          Login
+        </button>
+      </div>
+    </div>
+
+    <div class="pt-2 mt-2">
+      <p>
+        <span class="psw">Forgot <a href="#">password?</a></span>
+      </p>
+    </div>
+  </form>
+</div>
+
+<script>
+  function onLoginFormChange() {
+    const obj = document.getElementById("login-error");
+    obj.innerHTML = "";
+  }
+</script>
+
+{{end}}

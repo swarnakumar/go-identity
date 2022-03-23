@@ -1,0 +1,201 @@
+{{define "title"}}Users{{end}}
+
+{{define "content"}}
+
+
+
+{{if .User}}
+<h1 class="h1 text-2xl font-bold">User Details</h1>
+<div x-data="{ open: false }">
+    <p class="text-right">
+        <button @click="open = ! open" class="button danger">Change Password</button>
+    </p>
+    <div class="modal" x-cloak x-show="open">
+        <div class="modal-underlay" _="on click trigger closeModal"></div>
+        <div class="modal-content overflow-auto max-w-6xl w-full max-h-full" @click.outside="open = false">
+            <h1 class="h1">Set New Password</h1>
+            <div class="m-2 p-2">
+                <form hx-post="/admin/users/{{.User.Email}}/change-password"
+                      hx-target="#change-pwd-result"
+                      hx-swap="innerHTML">
+                    {{.csrfField}}
+                    <div class="container">
+                        <div class="mt-2 pt-2">
+                            <label for="password1"><b>Password</b></label>
+                            <input
+                                    id="password1"
+                                    type="password"
+                                    placeholder="Enter Password"
+                                    name="pwd1"
+                                    required
+                                    autocomplete="off"
+                                    class="w-full"
+                                    oninput="onChangePwdFormChange()"
+                            />
+                        </div>
+                        <div class="mt-2 pt-2">
+                            <label for="password2"><b>Confirm the Password:</b></label>
+                            <input
+                                    id="password2"
+                                    type="password"
+                                    placeholder="Confirm Password"
+                                    name="pwd2"
+                                    required
+                                    autocomplete="off"
+                                    class="w-full"
+                                    oninput="onChangePwdFormChange()"
+                            />
+                        </div>
+                        <div id="change-pwd-result"></div>
+                        <div class="mt-2 pt-2">
+                            <div class="text-right">
+                                <button
+                                        type="button"
+                                        @click="open = false"
+                                        class="button danger uppercase"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                        type="submit"
+                                        class="button primary uppercase"
+                                >
+                                    Change
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 pt-2 mt-2 gap-6">
+    <div class="border-b md:border-b-0 md:border-r">
+        <h3 class="h3 text-xl font-bold">User Attributes</h3>
+        <div class="p-2 m-2">
+            <form hx-post="/admin/users/{{urlEncode .User.Email}}/change"
+                  hx-target="#change-result"
+                  hx-swap="innerHTML"
+            >
+                {{.csrfField}}
+                <div class="mt-2 pt-2">
+                    <label class="inline-flex items-center" for="is-admin">
+                        <input id="is-admin" name="is-admin" type="checkbox" {{if .User.IsAdmin}}checked{{end}}/>
+                        <span class="ml-2 font-bold">Should the User be an Admin?</span>
+                    </label>
+                    <p class="text-sm text-gray-600">Admin Users can create/change/delete other users!</p>
+                    <p class="text-sm text-gray-600">{{.User.Email}} currently <span id="admin-status" class="underline">{{if .User.IsAdmin}} has {{else}} does not have
+                        {{end}}</span> admin rights</p>
+                </div>
+                <div class="mt-2 pt-2">
+                    <label class="inline-flex items-center" for="is-admin">
+                        <input id="is-active" name="is-active" type="checkbox" {{if .User.IsActive}}checked{{end}}/>
+                        <span class="ml-2 font-bold">Should the User be set as Active?</span>
+                    </label>
+                    <p class="text-sm text-gray-600">Active Users can login, and get tokens.</p>
+                    <p class="text-sm text-gray-600">{{.User.Email}} currently is <span id="active-status" class="underline">{{if .User.IsActive}} active{{else}} not active{{end}}.</span></p>
+                </div>
+                <div id="change-result"></div>
+                <div class="pt-2 mt-2">
+                    <button
+                            type="submit"
+                            class="button primary uppercase"
+                    >
+                        Change
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <div  x-data="{ openUpdateLog: false }">
+        <h3 class="h3 text-xl font-bold pb-2">Activity</h3>
+        <div class="px-2">
+            <p>Last Login: {{if .User.LastLogin.Valid}}
+                {{ .User.LastLogin.Time.Format "Jan 02, 2006"}}.
+                {{else}}
+                Never Logged In!!!
+                {{end}}</p>
+            <p>User Since: {{ .User.CreatedAt.Format "Jan 02, 2006"}}.</p>
+            <p>Last Updated: <span id="last-update">{{ .User.UpdatedAt.Format "Jan 02, 2006"}}</span>
+                <span @click="openUpdateLog = ! openUpdateLog"
+                      class="text-blue-700 cursor-pointer"
+                      hx-get="/admin/users/{{.User.Email}}/changes"
+                      hx-target="#activity-log"
+                      hx-swap="innerHTML"
+                >
+                    (Show Update Log)
+                </span>
+            </p>
+        </div>
+        <div class="modal" x-cloak x-show="openUpdateLog">
+            <div class="modal-underlay" _="on click trigger closeModal"></div>
+            <div class="modal-content overflow-auto max-w-6xl w-full max-h-full" @click.outside="open = false">
+                <div id="activity-log"></div>
+                <p class="py-2 my-2"><button type="button" @click="openUpdateLog = false" class="button primary w-full uppercase">Close</button></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div x-data="{ open: false }">
+    <p class="text-right">
+        <button @click="open = ! open" class="button danger">Delete User</button>
+    </p>
+    <div class="modal" x-cloak x-show="open">
+        <div class="modal-underlay" _="on click trigger closeModal"></div>
+        <div class="modal-content overflow-auto max-w-6xl w-full max-h-full" @click.outside="open = false">
+            <h1 class="h1">Delete User</h1>
+            <div class="m-2 p-2">
+                <form hx-post="/admin/users/{{.User.Email}}/delete"
+                      hx-target="#delete-error"
+                      hx-swap="innerHTML"
+                >
+                    {{.csrfField}}
+                    <div class="container">
+                        <p>
+                            Are you sure you want to delete <span class="underline italic">{{.User.Email}}?</span>
+                        </p>
+                        <p>Note this is an irreversible step!!!</p>
+                        <div id="delete-error"></div>
+                        <div class="mt-2 pt-2">
+                            <div class="text-right">
+                                <button
+                                        type="button"
+                                        @click="open = false"
+                                        class="button danger uppercase"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                        type="submit"
+                                        class="button primary uppercase"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{else}}
+<div class="p-4 m-4">
+    <p class="text-center">Unable to Find User!!!</p>
+</div>
+{{end}}
+
+<script>
+    function onChangePwdFormChange() {
+        const obj = document.getElementById("change-pwd-result");
+        obj.innerHTML = "";
+    }
+</script>
+
+{{end}}

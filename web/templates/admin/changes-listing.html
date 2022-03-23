@@ -1,0 +1,40 @@
+<div id="{{.PageContentDiv}}">
+<h1 class="h1 text-2xl font-bold">Changes so far</h1>
+
+<div class="p-2 m-2">
+    <table class="w-full table table-auto">
+        <thead>
+        <tr>
+            <th class="text-center">
+                <p class="p-1">Update Time</p>
+            </th>
+            <th class="text-center border-l">
+                <p class="p-1">Password</p>
+            </th>
+            <th class="text-center border-l">
+                <p class="p-1">Admin Rights</p>
+            </th>
+            <th class="text-center border-l">
+                <p class="p-1">Active Status</p>
+            </th>
+            <th class="text-center border-l">
+                <p class="p-1">Updated By</p>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range .Changes}}
+        <tr class="border-t">
+            <td class="table-cell"><p class="p-1">{{ .CreatedAt.Time.Format "Jan 02, 2006 3:04:05 pm"}}</p></td>
+            <td class="table-cell border-l"><p class="p-1 text-center">{{.Pwd.Bool}}</p></td>
+            <td class="table-cell border-l"><p class="p-1 text-center">{{.IsAdmin.Bool}}</p></td>
+            <td class="table-cell border-l"><p class="p-1 text-center">{{.IsActive.Bool}}</p></td>
+            <td class="table-cell border-l"><p class="p-1 text-center">{{.UpdatedBy.String}}</p></td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+</div>
+
+{{template "pagination" .}}
+</div>

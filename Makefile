@@ -24,11 +24,32 @@ setup-test-db:
 test: setup-test-db
 	go test ./... -v
 
-build-css:
-	cd web && npx tailwindcss -i ./input.css -o ./static/main.css --minify
+make-sql:
+	sqlc generate
 
-build: sync-db build-css
+build-dev-css:
+	cd web/frontend && npm run build
+
+dev: sync-db build-dev-css
+	reflex -c reflex.conf -d fancy -e
+
+build-go: make-sql
 	go build -o build/identity
 
-create-user: build
+build-css:
+	cd web/frontend && npx tailwindcss -i ./input.css -o ../static/main.css --minify
+
+create-user: build-go sync-db make-sql
 	cd build && ./identity create-user
+
+build: build-css make-sql
+	go build -o build/identity
+
+run: build-go build-css sync-db
+	cd build && ./identity run-server
+
+build-http-server: build-go build-css
+	go build -o build/server ./cmd/web
+
+build-cli: make-sql
+	go build -o build/cli ./cmd/cli

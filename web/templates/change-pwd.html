@@ -1,0 +1,76 @@
+{{define "title"}}Change Password{{end}}
+
+{{define "content"}}
+
+<h1 class="h1 text-2xl font-bold">Change Password</h1>
+
+<div class="m-2 p-2">
+    <form hx-post="/change-password"
+          hx-target="#change-pwd-result"
+          hx-swap="innerHTML">
+        {{.csrfField}}
+        <div class="container">
+            <div class="mt-2 pt-2">
+                <label for="current"><b>Current Password</b></label>
+                <input
+                        id="current"
+                        type="password"
+                        placeholder="Current Password"
+                        name="current"
+                        required
+                        autocomplete="off"
+                        class="w-full"
+                        oninput="onChangePwdFormChange()"
+                />
+            </div>
+            <div class="mt-2 pt-2">
+                <label for="password1"><b>New Password</b></label>
+                <input
+                        id="password1"
+                        type="password"
+                        placeholder="New Password"
+                        name="pwd1"
+                        required
+                        autocomplete="off"
+                        class="w-full"
+                        oninput="onChangePwdFormChange()"
+                />
+            </div>
+            <div class="mt-2 pt-2">
+                <label for="password2"><b>Confirm New Password:</b></label>
+                <input
+                        id="password2"
+                        type="password"
+                        placeholder="Confirm New Password"
+                        name="pwd2"
+                        required
+                        autocomplete="off"
+                        class="w-full"
+                        oninput="onChangePwdFormChange()"
+                />
+            </div>
+            <div id="change-pwd-result"></div>
+            <div class="mt-2 pt-2">
+                <div>
+
+                    <button
+                            type="submit"
+                            class="button primary uppercase w-full"
+                    >
+                        Change Password
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script>
+    function onChangePwdFormChange() {
+        const obj = document.getElementById("change-pwd-result");
+        obj.innerHTML = "";
+    }
+</script>
+
+{{end}}

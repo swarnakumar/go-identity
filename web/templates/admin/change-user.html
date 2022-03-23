@@ -1,0 +1,3 @@
+<span id="last-update" hx-swap-oob="true">{{ .User.UpdatedAt.Format "Jan 02, 2006"}}</span>
+<span id="admin-status" class="underline" hx-swap-oob="true">{{if .User.IsAdmin}} has {{else}} does not have{{end}}</span>
+<span id="active-status" class="underline" hx-swap-oob="true">{{if .User.IsActive}} active{{else}} not active{{end}}.</span>

@@ -1,0 +1,55 @@
+{{define "title"}}Users{{end}}
+
+{{define "content"}}
+
+<h1 class="h1 text-2xl font-bold">Deleted Users</h1>
+
+{{if not .Users}}
+    <div class="m-4 p-4">
+        <p class="text-center">No Users Deleted So Far!!!</p>
+    </div>
+{{else}}
+
+    <div class="p-2 m-2">
+        <table class="w-full table table-auto">
+            <thead>
+            <tr>
+                <th class="text-left"><p class="p-1">Email</p></th>
+                <th class="text-center border-l"><p class="p-1">Deleted On</p></th>
+                <th class="text-center border-l"><p class="p-1">Deleted By</p></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range .Users}}
+            <tr class="border-t">
+                <td class="table-cell">
+                    <p class="p-1">{{.Email}}</p>
+                </td>
+                <td class="table-cell text-center border-l">
+                    <p class="p-1">
+                        {{if .DeletedAt.Valid}}
+                            {{ .DeletedAt.Time.Format "Jan 02, 2006"}}
+                        {{else}}
+                            -
+                        {{end}}
+                    </p>
+                </td>
+                <td class="table-cell text-center border-l">
+                    <p class="p-1">
+                        {{if .DeletedBy.Valid}}
+                            {{.DeletedBy.Value}}
+                        {{else}}
+                            -
+                        {{end}}
+                    </p>
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+
+    </div>
+
+    {{template "pagination" .}}
+{{end}}
+{{end}}
