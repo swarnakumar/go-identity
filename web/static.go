@@ -13,18 +13,18 @@ import (
 //go:embed static
 var embeddedFiles embed.FS
 
-func (s *Server) SetupStatic(staticPath, staticRoot string) {
+func setupStatic(router *chi.Mux, staticPath, staticRoot string) {
 	if strings.ContainsAny(staticPath, "{}*") {
 		panic("FileServer does not permit any URL parameters.")
 	}
 
 	if staticPath != "/" && staticPath[len(staticPath)-1] != '/' {
-		s.router.Get(staticPath, http.RedirectHandler(staticPath+"/", http.StatusMovedPermanently).ServeHTTP)
+		router.Get(staticPath, http.RedirectHandler(staticPath+"/", http.StatusMovedPermanently).ServeHTTP)
 		staticPath += "/"
 	}
 	staticPath += "*"
 
-	s.router.Get(staticPath, func(w http.ResponseWriter, r *http.Request) {
+	router.Get(staticPath, func(w http.ResponseWriter, r *http.Request) {
 		rctx := chi.RouteContext(r.Context())
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 

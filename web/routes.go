@@ -1,13 +1,17 @@
 package web
 
 import (
-	"github.com/go-chi/chi/v5"
-	mw "github.com/swarnakumar/go-identity/web/middleware"
-	webapp "github.com/swarnakumar/go-identity/web/webapp"
-	"github.com/swarnakumar/go-identity/web/webapp/admin"
+	"github.com/swarnakumar/go-identity/web/api"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/go-chi/chi/v5"
+
+	mw "github.com/swarnakumar/go-identity/web/middleware"
+	"github.com/swarnakumar/go-identity/web/server"
+	"github.com/swarnakumar/go-identity/web/webapp"
+	"github.com/swarnakumar/go-identity/web/webapp/admin"
 )
 
 func pong(w http.ResponseWriter, r *http.Request) {
@@ -15,15 +19,16 @@ func pong(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("pong"))
 }
 
-func setupLoginRoutes(s *Server) {
+func setupLoginRoutes(s *server.Server) {
 	// All are public routes
-	s.router.Get("/login", webapp.RenderLoginPage(s))
-	s.router.Post("/login", webapp.HandleLoginCredentials(s))
-	s.router.Get("/logout", webapp.HandleLogout(s))
-	s.router.Post("/logout", webapp.HandleLogout(s))
+	r := s.GetRouter()
+	r.Get("/login", webapp.RenderLoginPage(s))
+	r.Post("/login", webapp.HandleLoginCredentials(s))
+	r.Get("/logout", webapp.HandleLogout(s))
+	r.Post("/logout", webapp.HandleLogout(s))
 }
 
-func getAdminRouter(s *Server) chi.Router {
+func getAdminRouter(s *server.Server) chi.Router {
 	adminRouter := chi.NewRouter()
 	adminRouter.Use(mw.AdminGateMiddleware)
 
@@ -43,25 +48,28 @@ func getAdminRouter(s *Server) chi.Router {
 	return adminRouter
 }
 
-func (s *Server) setupRoutes() {
+func setupRoutes(s *server.Server) {
 	workDir, _ := os.Getwd()
 	filesDir := filepath.Join(workDir, "web", "static")
 
-	s.SetupStatic("/static", filesDir)
+	gr := s.GetRouter()
+	setupStatic(gr, "/static", filesDir)
 
-	s.router.Get("/ping", pong)
+	gr.Get("/ping", pong)
 
 	setupLoginRoutes(s)
 
 	// Behind Login Gate
-	s.router.Group(func(r chi.Router) {
+	gr.Group(func(r chi.Router) {
 		r.Use(mw.LoginGateMiddleware)
-		s.router.Get("/", webapp.RenderHomePage(s))
+		r.Get("/", webapp.RenderHomePage(s))
 		r.Get("/change-password", webapp.RenderChangePwd(s))
 		r.Post("/change-password", webapp.HandleChangePwd(s))
 	})
 
 	// Admin
-	s.router.Mount("/admin", getAdminRouter(s))
+	gr.Mount("/admin", getAdminRouter(s))
 
+	apiRouter := api.MakeApiRouter(s)
+	gr.Mount("/api", apiRouter)
 }

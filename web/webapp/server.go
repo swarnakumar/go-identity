@@ -12,7 +12,6 @@ import (
 )
 
 type Server interface {
-	RenderApiResponse(w http.ResponseWriter, msg any, statusCode int)
 	GetRequestUser(r *http.Request) *sqlc.GetUserByEmailRow
 
 	RenderErrorAlert(w http.ResponseWriter, msg string)
