@@ -3,9 +3,6 @@ package server
 import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/gorilla/csrf"
-
-	"github.com/swarnakumar/go-identity/config"
 	mw "github.com/swarnakumar/go-identity/web/middleware"
 )
 
@@ -24,11 +21,6 @@ func (s *Server) InitRouter() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})
 
-	csrfMiddleware := csrf.Protect(
-		[]byte(config.CSRFAuthKey),
-		csrf.Secure(config.UseHttps),
-	)
-
 	jwtVerifier := s.jwt.GetVerifierMiddleware()
 
 	authMiddleware := mw.GetAuthMiddleware(s.db)
@@ -39,7 +31,6 @@ func (s *Server) InitRouter() {
 		middleware.Logger,
 		middleware.Recoverer,
 
-		csrfMiddleware,
 		corsMiddleware,
 		jwtVerifier,
 

@@ -20,14 +20,36 @@ type Server interface {
 	GetJWT() *jwt.JWT
 }
 
-func MakeApiRouter(s Server) chi.Router {
-	apiRouter := chi.NewRouter()
+func MakeRouter(s Server) chi.Router {
+	router := chi.NewRouter()
 
-	apiRouter.Post("/generate-token", HandleGenerateToken(s))
-	apiRouter.Post("/refresh-token", HandleRefreshToken(s))
-	apiRouter.Post("/verify-token", HandleVerifyToken(s))
-	apiRouter.Post("/change-password", HandleChangePwd(s))
+	router.Post("/generate-token", HandleGenerateToken(s))
+	router.Post("/verify-token", HandleVerifyToken(s))
 
-	return apiRouter
+	loginGate := GetLoginGateMiddleware(s)
 
+	router.Group(func(r chi.Router) {
+		r.Use(loginGate)
+		r.Get("/me", HandleMe(s))
+		r.Post("/refresh-token", HandleRefreshToken(s))
+		r.Post("/change-password", HandleChangePwd(s))
+	})
+
+	return router
+}
+
+func MakeJWTRouter(s Server) chi.Router {
+	router := chi.NewRouter()
+
+	router.Post("/create", HandleGenerateToken(s))
+	router.Post("/verify", HandleVerifyToken(s))
+
+	loginGate := GetLoginGateMiddleware(s)
+
+	router.Group(func(r chi.Router) {
+		r.Use(loginGate)
+		r.Post("/refresh", HandleRefreshToken(s))
+	})
+
+	return router
 }

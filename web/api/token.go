@@ -49,8 +49,8 @@ func HandleGenerateToken(s Server) http.HandlerFunc {
 // HandleRefreshToken generates a new token for user with new expiry.
 func HandleRefreshToken(s Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		currUser := s.GetRequestUser(r).Email
-		if currUser == "" {
+		currUser := s.GetRequestUser(r)
+		if currUser == nil {
 			err := ErrorResponse{
 				Title:  "invalid-credentials",
 				Detail: "Invalid Credentials: Token not passed, or already expired!",
@@ -60,7 +60,7 @@ func HandleRefreshToken(s Server) http.HandlerFunc {
 			return
 		}
 
-		jwtClaims := map[string]interface{}{"user": currUser}
+		jwtClaims := map[string]interface{}{"user": currUser.Email}
 		token := s.GetJWT().Create(jwtClaims)
 
 		resp := map[string]string{"token": token}
@@ -68,12 +68,55 @@ func HandleRefreshToken(s Server) http.HandlerFunc {
 	}
 }
 
+type verifyTokenParams struct {
+	Token string `json:"token"`
+}
+
 // HandleVerifyToken verifies token.
 func HandleVerifyToken(s Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		currUser := s.GetRequestUser(r).Email
-		resp := map[string]bool{"valid": currUser != ""}
-		s.RenderApiResponse(w, resp, http.StatusCreated)
+		handleInvalidRequest := func() {
+			e := ErrorResponse{
+				Title:  "invalid-data",
+				Detail: "Invalid Data Sent.",
+				Status: http.StatusBadRequest,
+			}
+			s.RenderApiResponse(w, e, http.StatusBadRequest)
+		}
+
+		if r.Body == nil {
+			handleInvalidRequest()
+			return
+		}
+
+		decoder := json.NewDecoder(r.Body)
+		var t verifyTokenParams
+		err := decoder.Decode(&t)
+		if err != nil || t.Token == "" {
+			handleInvalidRequest()
+			return
+		}
+
+		handleValidRequest := func(valid bool) {
+			resp := map[string]bool{"valid": valid}
+			s.RenderApiResponse(w, resp, http.StatusOK)
+		}
+
+		j := s.GetJWT()
+		token, err := j.Get(t.Token)
+		if err != nil || token == nil {
+			handleValidRequest(false)
+			return
+		}
+
+		user, present := token.PrivateClaims()["user"]
+		if !present || user == nil || user == "" {
+			handleValidRequest(false)
+			return
+		}
+
+		_, err = s.GetDbClient().Users.GetByEmail(r.Context(), user.(string))
+		handleValidRequest(err == nil)
 	}
 }
 

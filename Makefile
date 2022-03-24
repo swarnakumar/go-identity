@@ -42,14 +42,11 @@ build-css:
 create-user: build-go sync-db make-sql
 	cd build && ./identity create-user
 
-build: build-css make-sql
-	go build -o build/identity
+build: vendor build-css make-sql
+	go build -mod=vendor -o build/identity
 
 run: build-go build-css sync-db
 	cd build && ./identity run-server
 
-build-http-server: build-go build-css
-	go build -o build/server ./cmd/web
-
-build-cli: make-sql
-	go build -o build/cli ./cmd/cli
+clean:
+	rm -rf build/
