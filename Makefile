@@ -33,20 +33,28 @@ build-dev-css:
 dev: sync-db build-dev-css
 	reflex -c reflex.conf -d fancy -e
 
-build-go: make-sql
-	go build -o build/identity
+dev-grpc: sync-db
+	go run ./cmd/grpc
 
 build-css:
 	cd web/frontend && npx tailwindcss -i ./input.css -o ../static/main.css --minify
 
-create-user: build-go sync-db make-sql
-	cd build && ./identity create-user
+build-cli:
+	go build -o build/cli ./cmd/cli
 
-build: vendor build-css make-sql
-	go build -mod=vendor -o build/identity
+create-user: build-cli sync-db make-sql
+	cd build && ./cli create-user
 
-run: build-go build-css sync-db
-	cd build && ./identity run-server
+build-web: build-css make-sql
+	go build -o build/web ./cmd/web
+
+build-grpc: make-sql
+	go build -o build/grpc ./cmd/grpc
+
+build-all: build-cli build-web build-grpc
+
+run-web: build-web sync-db
+	./build/web
 
 clean:
 	rm -rf build/
