@@ -54,10 +54,18 @@ func StartGRPCServer(grpcServerPort, apiServerPort string) {
 
 	// This is the API gateway
 	gwmux := runtime.NewServeMux()
-	// Register Greeter
+	// ping-pong
+	err = gwmux.HandlePath("GET", "/ping", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+		w.Write([]byte("pong"))
+	})
+	if err != nil {
+		log.Fatalln("Failed to register ping:", err)
+	}
+
+	// Register Users
 	err = userspb.RegisterUsersServiceHandler(ctx, gwmux, conn)
 	if err != nil {
-		log.Fatalln("Failed to register gateway:", err)
+		log.Fatalln("Failed to register users:", err)
 	}
 
 	gwServer := &http.Server{

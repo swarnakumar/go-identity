@@ -9,11 +9,15 @@
       "name": "UsersService"
     }
   ],
+  "schemes": [
+    "http",
+    "https"
+  ],
   "consumes": [
     "application/json"
   ],
   "produces": [
-    "application/json"
+    "application.json"
   ],
   "paths": {
     "/v1/users/change-password": {
@@ -45,6 +49,11 @@
         ],
         "tags": [
           "UsersService"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
         ]
       }
     },
@@ -99,6 +108,11 @@
         },
         "tags": [
           "UsersService"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
         ]
       }
     },
@@ -278,5 +292,18 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "bearer": {
+      "type": "apiKey",
+      "description": "Authentication token, prefixed by Bearer: Bearer \u003ctoken\u003e",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "bearer": []
+    }
+  ]
 }
