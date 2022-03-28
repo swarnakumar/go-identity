@@ -33,7 +33,11 @@ build-dev-css:
 dev: sync-db build-dev-css
 	reflex -c reflex.conf -d fancy -e
 
-dev-grpc: sync-db
+proto:
+	buf generate proto
+#	protoc -I ./proto --go_out ./proto --go_opt paths=source_relative --go-grpc_out ./proto --go-grpc_opt paths=source_relative --grpc-gateway_out ./proto --grpc-gateway_opt paths=source_relative ./proto/**/*.proto
+
+dev-grpc: sync-db proto
 	go run ./cmd/grpc
 
 build-css:
@@ -48,7 +52,7 @@ create-user: build-cli sync-db make-sql
 build-web: build-css make-sql
 	go build -o build/web ./cmd/web
 
-build-grpc: make-sql
+build-grpc: proto make-sql
 	go build -o build/grpc ./cmd/grpc
 
 build-all: build-cli build-web build-grpc
@@ -58,3 +62,5 @@ run-web: build-web sync-db
 
 clean:
 	rm -rf build/
+
+.PHONY: proto

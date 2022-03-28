@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package users.v1;
+option go_package = "./users";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+service UsersService {
+  rpc GenerateToken(GenerateTokenRequest) returns (Token) {
+    option (google.api.http) = {
+      post: "/v1/users/generate-token"
+      body: "*"
+    };
+  }
+
+  rpc VerifyToken(Token) returns (TokenValidityMessage) {
+    option (google.api.http) = {
+      post: "/v1/users/verify-token"
+      body: "*"
+    };
+  }
+
+  rpc RefreshToken(google.protobuf.Empty) returns (Token) {
+    option (google.api.http) = {
+      post: "/v1/users/refresh-token"
+      body: "*"
+    };
+  }
+
+  rpc Me(google.protobuf.Empty) returns (UserDetails) {
+    option (google.api.http) = {
+      get: "/v1/users/me"
+    };
+  }
+
+  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/users/change-password"
+      body: "*"
+    };
+  }
+}
+
+message GenerateTokenRequest {
+  string email = 1  [(google.api.field_behavior) = REQUIRED];
+  string password = 2  [(google.api.field_behavior) = REQUIRED];
+}
+
+message Token {
+  string token = 1  [(google.api.field_behavior) = REQUIRED];
+}
+
+message TokenValidityMessage {
+  bool valid = 1;
+}
+
+message UserDetails {
+  string email = 1;
+  bool is_active = 2;
+  bool is_admin = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  google.protobuf.Timestamp last_login = 6;
+  string created_by = 7;
+}
+
+message ChangePasswordRequest {
+  string current_pwd = 1;
+  string new_pwd = 2;
+}

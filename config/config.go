@@ -34,3 +34,8 @@ var (
 	JWTAudience       = os.Getenv("JWT_AUDIENCE")
 	JWTIssuer         = os.Getenv("JWT_ISSUER")
 )
+
+var (
+	GRPCServerPort = os.Getenv("GRPC_SERVER_PORT")
+	APIServerPort  = os.Getenv("API_SERVER_PORT")
+)
